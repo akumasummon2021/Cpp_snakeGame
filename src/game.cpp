@@ -73,11 +73,13 @@ void Game::Update() {
 
   int new_x = static_cast<int>(snake.head_x);
   int new_y = static_cast<int>(snake.head_y);
-  /*
+  
+  // Check if the snake hit the stone, if yes, then no need to check food position
   if(stoneHit(new_x, new_y)) {
 	  snake.alive = false;
+	  std::cout<<"hit a stone!"<<std::endl;
 	  return;
-  }*/
+  }
 
   // Check if there's food over here
   if (food.x == new_x && food.y == new_y) {
@@ -134,11 +136,9 @@ bool Game::stoneHit(int x, int y){
 
 bool Game::positionAvailable(SDL_Point p){
 	// suggest, if point p is available: stone, food, snake
+	
 	// for Stone:
-	//if(!stoneHit(p)) return false;
-	for(auto pi : _stones){
-		if((p.x == pi.x) && (p.y == pi.y)) return false;
-	}
+	if(stoneHit(p)) return false;
 	
 	// for food:
 	// if(food != NULL)
