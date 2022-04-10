@@ -18,10 +18,16 @@ class Game {
 
  private:
   Snake snake;
-  SDL_Point food;
-  // new
+  //SDL_Point food;
+  // new difficulty - level of the game
   int _difficulty{1};
+  // new stones vector
   std::vector<SDL_Point> _stones;
+  // new snake vector
+  std::vector<Snake> enemySnakes;
+  // new foods vector
+  std::vector<SDL_Point> foods;
+  int numsOfFoods{5};  
 
   std::random_device dev;
   std::mt19937 engine;
@@ -30,10 +36,11 @@ class Game {
 
   int score{0};
 
-  void PlaceFood();
+  void PlaceFood(int nums);
   void Update();
   // new function
   void PlaceStone(int level);
+  bool eatFood(Snake s);
   bool stoneHit(SDL_Point p);
   bool stoneHit(int x, int y);
   bool positionAvailable(SDL_Point p);
