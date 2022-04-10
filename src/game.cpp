@@ -7,6 +7,7 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)) {
+  PlaceStone(_difficulty);		  
   PlaceFood();
 }
 
@@ -25,7 +26,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     // Input, Update, Render - the main game loop.
     controller.HandleInput(running, snake);
     Update();
-    renderer.Render(snake, food);
+    renderer.Render(snake, food, _stones);
 
     frame_end = SDL_GetTicks();
 
@@ -72,6 +73,11 @@ void Game::Update() {
 
   int new_x = static_cast<int>(snake.head_x);
   int new_y = static_cast<int>(snake.head_y);
+  /*
+  if(stoneHit(new_x, new_y)) {
+	  snake.alive = false;
+	  return;
+  }*/
 
   // Check if there's food over here
   if (food.x == new_x && food.y == new_y) {
@@ -79,8 +85,69 @@ void Game::Update() {
     PlaceFood();
     // Grow snake and increase speed.
     snake.GrowBody();
-    snake.speed += 0.02;
+    snake.speed += 0.005;
   }
+}
+
+void Game::PlaceStone(int level){	
+	int nums;
+	switch(level){
+		case 1:
+			nums = 4;
+			break;		
+		case 2:
+			nums = 8;
+			break;		
+		case 3:
+			nums = 12;
+			break;
+		default:
+			nums = 0;
+			break;
+	}
+	
+	for(int i=0;i<nums;++i){
+		SDL_Point tmp;
+		tmp.x = random_w(engine);
+		tmp.y = random_h(engine);
+		while(!positionAvailable(tmp)){
+			tmp.x = random_w(engine);
+			tmp.y = random_h(engine);			
+		}
+		_stones.push_back(tmp);
+	}
+}
+
+bool Game::stoneHit(SDL_Point p){
+	for(auto pi : _stones){
+		if((p.x == pi.x) && (p.y == pi.y)) return true;
+	}
+	return false;
+}
+
+bool Game::stoneHit(int x, int y){
+	for(auto pi : _stones){
+		if((x == pi.x) && (y == pi.y)) return true;
+	}
+	return false;
+}
+
+bool Game::positionAvailable(SDL_Point p){
+	// suggest, if point p is available: stone, food, snake
+	// for Stone:
+	//if(!stoneHit(p)) return false;
+	for(auto pi : _stones){
+		if((p.x == pi.x) && (p.y == pi.y)) return false;
+	}
+	
+	// for food:
+	// if(food != NULL)
+	if((p.x == food.x) && (p.y == food.y)) return false;
+	
+	// for snake
+	snake.SnakeCell(p.x, p.y);
+	
+	return true;
 }
 
 int Game::GetScore() const { return score; }

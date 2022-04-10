@@ -11,11 +11,14 @@ project(SDL2Test)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-set(SDL2_DIR "C:/Works/Git/CppSnake/SDL2_win/build/SDL2/")
+set(SDL2_DIR "C:/Works/Git/CppSnake/SDL2")
+include_directories("C:/Works/Git/CppSnake/SDL2/include")
+
 
 find_package(SDL2 REQUIRED)
-LINK_DIRECTORIES("${SDL2_DIR}/bin/")
+
 
 add_executable(SnakeGame src/main.cpp src/game.cpp src/controller.cpp src/renderer.cpp src/snake.cpp)
 # string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)
 target_link_libraries(SnakeGame ${SDL2_LIBRARIES})
+

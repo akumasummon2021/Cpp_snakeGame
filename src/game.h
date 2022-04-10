@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <random>
+#include <vector>
 #include "SDL.h"
 #include "controller.h"
 #include "renderer.h"
@@ -18,6 +19,9 @@ class Game {
  private:
   Snake snake;
   SDL_Point food;
+  // new
+  int _difficulty{1};
+  std::vector<SDL_Point> _stones;
 
   std::random_device dev;
   std::mt19937 engine;
@@ -28,6 +32,11 @@ class Game {
 
   void PlaceFood();
   void Update();
+  // new function
+  void PlaceStone(int level);
+  bool stoneHit(SDL_Point p);
+  bool stoneHit(int x, int y);
+  bool positionAvailable(SDL_Point p);
 };
 
 #endif
