@@ -12,12 +12,15 @@ class Renderer {
   ~Renderer();
 
   // new:
-  void Render(Snake const snake, std::vector<SDL_Point> foods, std::vector<SDL_Point> stone);
+  void Render(Snake const snake, std::vector<SDL_Point> foods, std::vector<SDL_Point> stone, std::vector<Snake> enemy);
   void UpdateWindowTitle(int score, int fps);
 
  private:
   SDL_Window *sdl_window;
   SDL_Renderer *sdl_renderer;
+  
+  //new
+  void SnakeRender(Snake snake, SDL_Rect &block, bool isEnemy);
 
   const std::size_t screen_width;
   const std::size_t screen_height;

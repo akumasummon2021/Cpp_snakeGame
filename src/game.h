@@ -40,6 +40,7 @@ class Game {
   void Update();
   // new function
   void PlaceStone(int level);
+  int numsOfEnemy{1};
   bool eatFood(Snake s);
   bool stoneHit(SDL_Point p);
   bool stoneHit(int x, int y);

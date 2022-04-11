@@ -7,8 +7,13 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)) {
-  PlaceStone(_difficulty);		  
-  PlaceFood(numsOfFoods);
+		  
+	for(int i=0;i<numsOfEnemy;++i) {
+		Snake tmp(grid_width, grid_height, numsOfEnemy, i);
+		enemySnakes.push_back(tmp);
+	}		
+	PlaceStone(_difficulty);		  
+	PlaceFood(numsOfFoods);
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -26,7 +31,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     // Input, Update, Render - the main game loop.
     controller.HandleInput(running, snake);
     Update();
-    renderer.Render(snake, foods, _stones);
+    renderer.Render(snake, foods, _stones, enemySnakes);
 
     frame_end = SDL_GetTicks();
 
@@ -70,11 +75,28 @@ void Game::PlaceFood(int nums) {
 
 void Game::Update() {
   if (!snake.alive) return;
-
+  
+  for(int i=0; i< enemySnakes.size(); ++i){
+	  enemySnakes[i].Update();	  
+  }
+  
   snake.Update();
 
-  int new_x = static_cast<int>(snake.head_x);
-  int new_y = static_cast<int>(snake.head_y);
+  int new_x; 
+  int new_y;
+  
+  for(int i=0;i< enemySnakes.size();++i){
+	new_x = static_cast<int>(enemySnakes[i].head_x);
+	new_y = static_cast<int>(enemySnakes[i].head_y);
+    if (eatFood(enemySnakes[i])) {
+      PlaceFood(numsOfFoods);
+      // Grow snake and increase speed.
+      enemySnakes[i].GrowBody();
+    } 	
+  }
+  
+  new_x = static_cast<int>(snake.head_x);
+  new_y = static_cast<int>(snake.head_y);
   
   // Check if the snake hit the stone, if yes, then no need to check food position
   if(stoneHit(new_x, new_y)) {
@@ -90,7 +112,7 @@ void Game::Update() {
     // Grow snake and increase speed.
     snake.GrowBody();
     snake.speed += 0.005;
-  }
+  }  
 }
 
 bool Game::eatFood(Snake s){
@@ -164,7 +186,11 @@ bool Game::positionAvailable(SDL_Point p){
 	}		
 	
 	// for snake
-	snake.SnakeCell(p.x, p.y);
+	if(snake.SnakeCell(p.x, p.y)) return false;
+	
+	for(auto s : enemySnakes) {
+		if(snake.SnakeCell(p.x, p.y)) return false;
+	}
 	
 	return true;
 }

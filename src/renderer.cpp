@@ -38,7 +38,7 @@ Renderer::~Renderer() {
   SDL_Quit();
 }
 
-void Renderer::Render(Snake const snake, std::vector<SDL_Point> foods, std::vector<SDL_Point> stones) {
+void Renderer::Render(Snake const snake, std::vector<SDL_Point> foods, std::vector<SDL_Point> stones, std::vector<Snake> enemy) {
   SDL_Rect block;
   block.w = screen_width / grid_width;
   block.h = screen_height / grid_height;
@@ -64,7 +64,25 @@ void Renderer::Render(Snake const snake, std::vector<SDL_Point> foods, std::vect
   }
   
   // Render snake's body
-  SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+  SnakeRender(snake, block, false);
+
+  for(auto s : enemy){
+	  SnakeRender(s, block, true);
+  }
+
+  // Update Screen
+  SDL_RenderPresent(sdl_renderer);
+}
+
+void Renderer::SnakeRender(Snake snake, SDL_Rect &block, bool isEnemy){
+	
+  if(!isEnemy){
+	  SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+  }	
+  else{
+	  SDL_SetRenderDrawColor(sdl_renderer, 0x9A, 0xFF, 0x9A, 0xFF);
+  }
+  
   for (SDL_Point const &point : snake.body) {
     block.x = point.x * block.w;
     block.y = point.y * block.h;
@@ -75,16 +93,17 @@ void Renderer::Render(Snake const snake, std::vector<SDL_Point> foods, std::vect
   block.x = static_cast<int>(snake.head_x) * block.w;
   block.y = static_cast<int>(snake.head_y) * block.h;
   if (snake.alive) {
-    SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
+      if(!isEnemy){
+	    SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
+	  }	
+      else{
+	    SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x8B, 0x00, 0xFF);
+      }	      
   } else {
     SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
   }
-  SDL_RenderFillRect(sdl_renderer, &block);
-
-  // Update Screen
-  SDL_RenderPresent(sdl_renderer);
+  SDL_RenderFillRect(sdl_renderer, &block);	
 }
-
 
 void Renderer::UpdateWindowTitle(int score, int fps) {
   std::string title{"Snake Score: " + std::to_string(score) + " FPS: " + std::to_string(fps)};
