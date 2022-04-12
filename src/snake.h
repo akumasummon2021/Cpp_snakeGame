@@ -13,17 +13,18 @@ class Snake {
         grid_height(grid_height),
         head_x(grid_width / 2),
         head_y(grid_height / 2) {}
-
-  Snake(int grid_width, int grid_height, int numsOfEnemy, int nums)
+ 
+  Snake(int grid_width, int grid_height, int nums)
       : grid_width(grid_width),
         grid_height(grid_height),
-        head_x(grid_width / 4.0),
-        head_y(grid_height / 4.0) {}
+        head_x(grid_width *nums/ 4),
+        head_y(grid_height / 4) {}
 		
   void Update();
 
   void GrowBody();
   bool SnakeCell(int x, int y);
+  void upDateDiretion(std::vector<SDL_Point> &foods);
 
   Direction direction = Direction::kUp;
 

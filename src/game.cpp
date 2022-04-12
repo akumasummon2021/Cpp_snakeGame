@@ -9,7 +9,7 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       random_h(0, static_cast<int>(grid_height - 1)) {
 		  
 	for(int i=0;i<numsOfEnemy;++i) {
-		Snake tmp(grid_width, grid_height, numsOfEnemy, i);
+		Snake tmp(grid_width, grid_height, i);
 		enemySnakes.push_back(tmp);
 	}		
 	PlaceStone(_difficulty);		  
@@ -77,6 +77,7 @@ void Game::Update() {
   if (!snake.alive) return;
   
   for(int i=0; i< enemySnakes.size(); ++i){
+	  enemySnakes[i].upDateDiretion(foods);
 	  enemySnakes[i].Update();	  
   }
   

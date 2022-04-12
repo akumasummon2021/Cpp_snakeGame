@@ -1,6 +1,8 @@
 #include "snake.h"
 #include <cmath>
 #include <iostream>
+#include <float.h>
+#include <cmath>
 
 void Snake::Update() {
   SDL_Point prev_cell{
@@ -75,4 +77,43 @@ bool Snake::SnakeCell(int x, int y) {
     }
   }
   return false;
+}
+
+// find the direction for the enemies
+void Snake::upDateDiretion(std::vector<SDL_Point> &foods){
+	float distance_squart = FLT_MAX;
+	int index;
+	
+	for(int i=0;i<foods.size();++i){
+		int abs = (head_x-foods[i].x)*(head_x-foods[i].x) + (head_y-foods[i].y)*(head_y-foods[i].y);
+		if(distance_squart > abs){
+			index = i;
+			distance_squart = abs;
+		}		
+	}
+	
+	std::cout<<"distance_squart: "<<distance_squart<<std::endl;
+	
+	if((head_x-foods[index].x != 0) && (abs(head_x-foods[index].x) - speed < speed) && ((direction == Direction::kRight) || (direction == Direction::kLeft))){
+		head_x = (direction == Direction::kRight)?(foods[index].x - speed):(foods[index].x + speed);
+	}
+	else if ((head_y-foods[index].y != 0) && (abs(head_y-foods[index].y) - speed < speed) && ((direction == Direction::kUp) || (direction == Direction::kDown))){
+		head_y = (direction == Direction::kUp)?(foods[index].y + speed):(foods[index].y - speed);
+	}
+	else if(head_x-foods[index].x > 0){
+		std::cout<<"x diff > 0: "<<(head_x-foods[index].x)<<std::endl;
+		direction = Direction::kLeft;
+	}
+	else if (head_y-foods[index].y > 0){
+		std::cout<<"y diff > 0: "<<(head_y-foods[index].y)<<std::endl;
+		direction = Direction::kUp;
+	}
+	else if (head_x-foods[index].x < 0){
+		std::cout<<"x diff < 0: "<<(head_x-foods[index].x)<<std::endl;
+		direction = Direction::kRight;
+	}
+	else if (head_y-foods[index].y < 0){
+		std::cout<<"y diff < 0: "<<(head_y-foods[index].y)<<std::endl;
+		direction = Direction::kDown;
+	} 
 }
