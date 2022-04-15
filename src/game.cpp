@@ -10,7 +10,8 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
 		  
 	for(int i=0;i<numsOfEnemy;++i) {
 		Snake tmp(grid_width, grid_height, i);
-		enemySnakes.push_back(tmp);
+		tmp.speed = (0.15f);
+		enemySnakes.emplace_back(std::move(tmp));
 	}		
 	PlaceStone(_difficulty);		  
 	PlaceFood(numsOfFoods);
@@ -82,13 +83,8 @@ void Game::Update() {
   }
   
   snake.Update();
-
-  int new_x; 
-  int new_y;
   
   for(int i=0;i< enemySnakes.size();++i){
-	new_x = static_cast<int>(enemySnakes[i].head_x);
-	new_y = static_cast<int>(enemySnakes[i].head_y);
     if (eatFood(enemySnakes[i])) {
       PlaceFood(numsOfFoods);
       // Grow snake and increase speed.
@@ -96,8 +92,8 @@ void Game::Update() {
     } 	
   }
   
-  new_x = static_cast<int>(snake.head_x);
-  new_y = static_cast<int>(snake.head_y);
+  int new_x = static_cast<int>(snake.head_x);
+  int new_y = static_cast<int>(snake.head_y);
   
   // Check if the snake hit the stone, if yes, then no need to check food position
   if(stoneHit(new_x, new_y)) {
@@ -155,7 +151,7 @@ void Game::PlaceStone(int level){
 			tmp.x = random_w(engine);
 			tmp.y = random_h(engine);			
 		}
-		_stones.push_back(tmp);
+		_stones.emplace_back(std::move(tmp));
 	}
 }
 

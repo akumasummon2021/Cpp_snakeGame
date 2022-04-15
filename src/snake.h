@@ -17,8 +17,8 @@ class Snake {
   Snake(int grid_width, int grid_height, int nums)
       : grid_width(grid_width),
         grid_height(grid_height),
-        head_x(grid_width *nums/ 4),
-        head_y(grid_height / 4) {}
+        head_x(grid_width *nums/ 3),
+        head_y(grid_height / 3) {}
 		
   void Update();
 
@@ -42,6 +42,8 @@ class Snake {
   bool growing{false};
   int grid_width;
   int grid_height;
+  int old_x = static_cast<int>(head_x);
+  int old_y = static_cast<int>(head_y);
 };
 
 #endif
