@@ -3,10 +3,11 @@
 
 #include <random>
 #include <vector>
-#include "SDL.h"
 #include "controller.h"
 #include "renderer.h"
 #include "snake.h"
+#include "stone.h"
+#include "SDL.h"
 
 class Game {
  public:
@@ -22,7 +23,7 @@ class Game {
   // new difficulty - level of the game
   int _difficulty{1};
   // new stones vector
-  std::vector<SDL_Point> _stones;
+  std::vector<Stone> _stones;
   // new snake vector
   std::vector<Snake> enemySnakes;
   // new foods vector
@@ -42,9 +43,10 @@ class Game {
   void PlaceStone(int level);
   int numsOfEnemy{1};
   bool eatFood(Snake s);
-  bool stoneHit(SDL_Point p);
-  bool stoneHit(int x, int y);
+  bool stonesHit(SDL_Point p);
+  bool stonesHit(int x, int y);
   bool positionAvailable(SDL_Point p);
 };
+
 
 #endif

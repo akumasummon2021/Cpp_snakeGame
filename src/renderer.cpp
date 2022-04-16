@@ -38,7 +38,7 @@ Renderer::~Renderer() {
   SDL_Quit();
 }
 
-void Renderer::Render(Snake const snake, std::vector<SDL_Point> foods, std::vector<SDL_Point> stones, std::vector<Snake> enemy) {
+void Renderer::Render(Snake const snake, std::vector<SDL_Point> foods, std::vector<Stone> stones, std::vector<Snake> enemy) {
   SDL_Rect block;
   block.w = screen_width / grid_width;
   block.h = screen_height / grid_height;
@@ -49,9 +49,9 @@ void Renderer::Render(Snake const snake, std::vector<SDL_Point> foods, std::vect
   
   // Render Stones
   SDL_SetRenderDrawColor(sdl_renderer, 0xA9, 0xA9, 0xA9, 0xFF);
-  for (SDL_Point const &point : stones) {
-    block.x = point.x * block.w;
-    block.y = point.y * block.h;
+  for (Stone const &stone : stones) {
+    block.x = stone._kordinate.x * block.w;
+    block.y = stone._kordinate.y * block.h;
     SDL_RenderFillRect(sdl_renderer, &block);
   }  
 

@@ -18,7 +18,7 @@ include_directories("C:/Works/Git/CppSnake/SDL2/include")
 find_package(SDL2 REQUIRED)
 
 
-add_executable(SnakeGame src/main.cpp src/game.cpp src/controller.cpp src/renderer.cpp src/snake.cpp)
+add_executable(SnakeGame src/main.cpp src/game.cpp src/stone.cpp src/controller.cpp src/renderer.cpp src/snake.cpp)
 # string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)
 target_link_libraries(SnakeGame ${SDL2_LIBRARIES})
 

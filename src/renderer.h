@@ -4,6 +4,7 @@
 #include <vector>
 #include "SDL.h"
 #include "snake.h"
+#include "stone.h"
 
 class Renderer {
  public:
@@ -12,7 +13,7 @@ class Renderer {
   ~Renderer();
 
   // new:
-  void Render(Snake const snake, std::vector<SDL_Point> foods, std::vector<SDL_Point> stone, std::vector<Snake> enemy);
+  void Render(Snake const snake, std::vector<SDL_Point> foods, std::vector<Stone> stones, std::vector<Snake> enemy);
   void UpdateWindowTitle(int score, int fps);
 
  private:

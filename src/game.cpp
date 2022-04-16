@@ -65,7 +65,7 @@ void Game::PlaceFood(int nums) {
     y = random_h(engine);
     // Check that the location is not occupied by a snake item before placing
     // food.
-    if (!snake.SnakeCell(x, y) && !stoneHit(x, y)) {
+    if (!snake.SnakeCell(x, y) && !stonesHit(x, y)) {
 		SDL_Point food;
 		food.x = x;
 		food.y = y;
@@ -84,6 +84,7 @@ void Game::Update() {
   
   snake.Update();
   
+  // eat food check for enemy
   for(int i=0;i< enemySnakes.size();++i){
     if (eatFood(enemySnakes[i])) {
       PlaceFood(numsOfFoods);
@@ -96,7 +97,7 @@ void Game::Update() {
   int new_y = static_cast<int>(snake.head_y);
   
   // Check if the snake hit the stone, if yes, then no need to check food position
-  if(stoneHit(new_x, new_y)) {
+  if(stonesHit(new_x, new_y)) {
 	  snake.alive = false;
 	  std::cout<<"hit a stone!"<<std::endl;
 	  return;
@@ -144,27 +145,24 @@ void Game::PlaceStone(int level){
 	}
 	
 	for(int i=0;i<nums;++i){
-		SDL_Point tmp;
-		tmp.x = random_w(engine);
-		tmp.y = random_h(engine);
-		while(!positionAvailable(tmp)){
-			tmp.x = random_w(engine);
-			tmp.y = random_h(engine);			
+		Stone tmp(random_w(engine), random_h(engine));
+		while(!positionAvailable(tmp._kordinate)){
+			tmp.setPosition(random_w(engine), random_h(engine));
 		}
 		_stones.emplace_back(std::move(tmp));
 	}
 }
 
-bool Game::stoneHit(SDL_Point p){
+bool Game::stonesHit(SDL_Point p){
 	for(auto pi : _stones){
-		if((p.x == pi.x) && (p.y == pi.y)) return true;
+		if(pi.stoneHit(p)) return true;
 	}
 	return false;
 }
 
-bool Game::stoneHit(int x, int y){
+bool Game::stonesHit(int x, int y){
 	for(auto pi : _stones){
-		if((x == pi.x) && (y == pi.y)) return true;
+		if(pi.stoneHit(x, y)) return true;
 	}
 	return false;
 }
@@ -173,7 +171,7 @@ bool Game::positionAvailable(SDL_Point p){
 	// suggest, if point p is available: stone, food, snake
 	
 	// for Stone:
-	if(stoneHit(p)) return false;
+	if(stonesHit(p)) return false;
 	
 	// for food:
 	if(foods.size() != 0){
