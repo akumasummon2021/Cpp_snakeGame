@@ -8,6 +8,7 @@
 #include "snake.h"
 #include "stone.h"
 #include "SDL.h"
+#include "Astar.h"
 
 class Game {
  public:
@@ -16,6 +17,9 @@ class Game {
            std::size_t target_frame_duration);
   int GetScore() const;
   int GetSize() const;
+  
+  Astar astar;
+  void upDateGoal(std::vector<Snake> &enemySnakes, std::vector<SDL_Point> &foods);
 
  private:
   Snake snake;
@@ -41,7 +45,7 @@ class Game {
   void Update();
   // new function
   void PlaceStone(int level);
-  int numsOfEnemy{1};
+  int numsOfEnemy{2};
   bool eatFood(Snake s);
   bool stonesHit(SDL_Point p);
   bool stonesHit(int x, int y);

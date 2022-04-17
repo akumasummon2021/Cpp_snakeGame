@@ -1,20 +1,24 @@
 #include "game.h"
 #include <iostream>
 #include "SDL.h"
+#include <float.h>
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : snake(grid_width, grid_height),
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
-      random_h(0, static_cast<int>(grid_height - 1)) {
-		  
+      random_h(0, static_cast<int>(grid_height - 1)),
+	  astar(grid_width, grid_height) {
+	  
 	for(int i=0;i<numsOfEnemy;++i) {
 		Snake tmp(grid_width, grid_height, i);
 		tmp.speed = (0.15f);
 		enemySnakes.emplace_back(std::move(tmp));
 	}		
-	PlaceStone(_difficulty);		  
-	PlaceFood(numsOfFoods);
+	PlaceStone(_difficulty);		
+	PlaceFood(numsOfFoods);	
+	// initialize a* Gamemap
+	astar.placeStoneOnMap(_stones);
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -76,6 +80,12 @@ void Game::PlaceFood(int nums) {
 
 void Game::Update() {
   if (!snake.alive) return;
+  
+  upDateGoal(enemySnakes, foods);/*
+  std::cout<<"snake 1 goal, x: "<<enemySnakes[0].goal.x<<std::endl;
+  std::cout<<"snake 1 goal, y: "<<enemySnakes[0].goal.y<<std::endl;
+  std::cout<<"snake 2 goal, x: "<<enemySnakes[1].goal.x<<std::endl;
+  std::cout<<"snake 2 goal, y: "<<enemySnakes[1].goal.y<<std::endl;  */
   
   for(int i=0; i< enemySnakes.size(); ++i){
 	  enemySnakes[i].upDateDiretion(foods);
@@ -192,3 +202,38 @@ bool Game::positionAvailable(SDL_Point p){
 
 int Game::GetScore() const { return score; }
 int Game::GetSize() const { return snake.size; }
+
+void Game::upDateGoal(std::vector<Snake> &enemy, std::vector<SDL_Point> &foods){
+	
+	float distance_squart;
+	int index;
+	int flag = 0;
+	
+	for(int j=0;j<enemy.size();++j){
+		distance_squart = FLT_MAX;
+		index = 0;
+		for(int i=0;i<foods.size();++i){
+			for(int k=0;k<j;++k){
+				if ((enemy[k].goal.x == foods[i].x) && (enemy[k].goal.y == foods[i].y)){
+					flag = 1;
+					break;
+				}
+			}
+			
+			if (flag == 1) {
+				flag = 0;
+				break;
+			}
+			
+			int abs = (enemy[j].head_x-foods[i].x)*(enemy[j].head_x-foods[i].x) + (enemy[j].head_y-foods[i].y)*(enemy[j].head_y-foods[i].y);
+			if(distance_squart > abs){
+				index = i;
+				distance_squart = abs;
+			}		
+		}
+		enemy[j].goal.x = foods[index].x;
+		enemy[j].goal.y = foods[index].y;
+	}
+	
+
+}

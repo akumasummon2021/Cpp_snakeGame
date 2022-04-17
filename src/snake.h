@@ -24,16 +24,18 @@ class Snake {
 
   void GrowBody();
   bool SnakeCell(int x, int y);
-  void upDateDiretion(std::vector<SDL_Point> &foods);
 
   Direction direction = Direction::kUp;
-
   float speed{0.1f};
   int size{1};
   bool alive{true};
   float head_x;
   float head_y;
   std::vector<SDL_Point> body;
+  
+  // nur Enemies use this variables
+  void upDateDiretion(std::vector<SDL_Point> &foods);
+  SDL_Point goal;  
 
  private:
   void UpdateHead();
@@ -42,8 +44,12 @@ class Snake {
   bool growing{false};
   int grid_width;
   int grid_height;
+  
+  // nur Enemies use this variables
   int old_x = static_cast<int>(head_x);
   int old_y = static_cast<int>(head_y);
+  // in A* used
+  std::vector<SDL_Point> path;  
 };
 
 #endif

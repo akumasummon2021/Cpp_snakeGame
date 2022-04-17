@@ -81,7 +81,7 @@ bool Snake::SnakeCell(int x, int y) {
 
 // find the direction for the enemies
 void Snake::upDateDiretion(std::vector<SDL_Point> &foods){
-	float distance_squart = FLT_MAX;
+	/*float distance_squart = FLT_MAX;
 	int index;
 	
 	for(int i=0;i<foods.size();++i){
@@ -90,58 +90,29 @@ void Snake::upDateDiretion(std::vector<SDL_Point> &foods){
 			index = i;
 			distance_squart = abs;
 		}		
-	}
+	}*/
 	
 	int hx = static_cast<int>(head_x);
 	int hy = static_cast<int>(head_y);
 	
-	if((hx-foods[index].x > 0) && (direction != Direction::kRight) && (hy != old_y)){
-		std::cout<<"x diff > 0: "<<(head_x-foods[index].x)<<" Direction: "<<static_cast<std::underlying_type<Direction>::type>(direction)<<std::endl;
+	if((hx-goal.x > 0) && (direction != Direction::kRight) && (hy != old_y)){
+		//std::cout<<"x diff > 0: "<<(head_x-foods[index].x)<<" Direction: "<<static_cast<std::underlying_type<Direction>::type>(direction)<<std::endl;
 		old_x = hx;
 		direction = Direction::kLeft;
 	}
-	else if((hy-foods[index].y > 0) && (direction != Direction::kDown) && (hx != old_x)){
-		std::cout<<"y diff > 0: "<<(head_y-foods[index].y)<<" Direction: "<<static_cast<std::underlying_type<Direction>::type>(direction)<<std::endl;
+	else if((hy-goal.y > 0) && (direction != Direction::kDown) && (hx != old_x)){
+		//std::cout<<"y diff > 0: "<<(head_y-foods[index].y)<<" Direction: "<<static_cast<std::underlying_type<Direction>::type>(direction)<<std::endl;
 		old_y = hy;		
 		direction = Direction::kUp;
 	}
-	else if((hx-foods[index].x < 0) && (direction != Direction::kLeft) && (hy != old_y)){
-		std::cout<<"x diff < 0: "<<(head_x-foods[index].x)<<" Direction: "<<static_cast<std::underlying_type<Direction>::type>(direction)<<std::endl;
+	else if((hx-goal.x < 0) && (direction != Direction::kLeft) && (hy != old_y)){
+		//std::cout<<"x diff < 0: "<<(head_x-foods[index].x)<<" Direction: "<<static_cast<std::underlying_type<Direction>::type>(direction)<<std::endl;
 		old_x = hx;
 		direction = Direction::kRight;
 	}
-	else if((hy-foods[index].y < 0) && (direction != Direction::kUp) && (hx != old_x)){
-		std::cout<<"y diff < 0: "<<(head_y-foods[index].y)<<" Direction: "<<static_cast<std::underlying_type<Direction>::type>(direction)<<std::endl;
+	else if((hy-goal.y < 0) && (direction != Direction::kUp) && (hx != old_x)){
+		//std::cout<<"y diff < 0: "<<(head_y-foods[index].y)<<" Direction: "<<static_cast<std::underlying_type<Direction>::type>(direction)<<std::endl;
 		old_y = hy;
 		direction = Direction::kDown;
 	}
-	
-	// std::cout<<"distance_squart: "<<distance_squart<<std::endl;
-	/*
-	if((head_x-foods[index].x != 0) && (abs(head_x-foods[index].x) - speed < speed) && ((direction == Direction::kRight) || (direction == Direction::kLeft))){
-		head_x = (direction == Direction::kRight)?(foods[index].x - speed):(foods[index].x + speed);
-	}
-	else if ((head_y-foods[index].y != 0) && (abs(head_y-foods[index].y) - speed < speed) && ((direction == Direction::kUp) || (direction == Direction::kDown))){
-		head_y = (direction == Direction::kUp)?(foods[index].y + speed):(foods[index].y - speed);
-	}
-	else if((head_x-foods[index].x > 0) && (direction != Direction::kRight)){
-		std::cout<<"x diff > 0: "<<(head_x-foods[index].x)<<" Direction: "<<static_cast<std::underlying_type<Direction>::type>(direction)<<std::endl;
-		old_x = hx;
-		direction = Direction::kLeft;
-	}
-	else if((head_y-foods[index].y > 0) && (direction != Direction::kDown)){
-		std::cout<<"y diff > 0: "<<(head_y-foods[index].y)<<" Direction: "<<static_cast<std::underlying_type<Direction>::type>(direction)<<std::endl;
-		old_y = hy;		
-		direction = Direction::kUp;
-	}
-	else if((head_x-foods[index].x < 0) && (direction != Direction::kLeft)){
-		std::cout<<"x diff < 0: "<<(head_x-foods[index].x)<<" Direction: "<<static_cast<std::underlying_type<Direction>::type>(direction)<<std::endl;
-		old_x = hx;
-		direction = Direction::kRight;
-	}
-	else if((head_y-foods[index].y < 0) && (direction != Direction::kUp)){
-		std::cout<<"y diff < 0: "<<(head_y-foods[index].y)<<" Direction: "<<static_cast<std::underlying_type<Direction>::type>(direction)<<std::endl;
-		old_y = hy;
-		direction = Direction::kDown;
-	} */
 }
