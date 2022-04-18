@@ -109,13 +109,14 @@ void Astar::placeEnemiesOnMap(std::vector<Snake> &enemies){
 }
 
 void Astar::AstarAlgorithmen(std::vector<Snake> &enemies){
+	std::cout<<"[AstarAlgorithmen]: begin"<<std::endl;
 	// reset Map
 	GameMap = GameMap_init;	
 	placeEnemiesOnMap(enemies);	
 	
 	// find the path for all enemies
 	for(int i=0;i<enemies.size();++i){
-		std::cout<<"Enemy "<<i<<" in calc"<<std::endl;
+		std::cout<<"[AstarAlgorithmen]: Loop for enemy "<<i<<" in calc"<<std::endl;
 		// reset openset/Map/Enemies
 		if(!AstarOpenSet.empty()) {AstarOpenSet.clear();}
 		GameMap = GameMap_init;	
@@ -127,31 +128,25 @@ void Astar::AstarAlgorithmen(std::vector<Snake> &enemies){
 		head.gValue = head.calcDistance(enemies[i].goal);		
 		AstarOpenSet.push_back(head);
 		
-		std::cout<<"head(x,y): "<<head.getX()<<", "<<head.getY()<<std::endl;
-		std::cout<<"goal(x,y): "<<enemies[i].goal.x<<", "<<enemies[i].goal.y<<std::endl;
-		std::cout<<"Astar begins"<<std::endl;
+		std::cout<<"[AstarAlgorithmen]: Head of enemy "<<i<<" (x,y): ("<<head.getX()<<", "<<head.getY()<<")"<<std::endl;
+		std::cout<<"[AstarAlgorithmen]: Goal of enemy "<<i<<" (x,y): ("<<enemies[i].goal.x<<", "<<enemies[i].goal.y<<std::endl;		
 		// find neigbours untile find the goal
 		
 		bool bl_reachGoal = findPath(AstarOpenSet.front(), head, enemies[i].goal);
 		
-		std::cout<<"AstarOpenSet first(x,y): "<<AstarOpenSet[0].getX()<<", "<<AstarOpenSet[0].getY()<<" distance, g: "<<AstarOpenSet[0].gValue<<" distance, h: "<<AstarOpenSet[0].hValue<<std::endl;
-		
+		std::cout<<"[AstarAlgorithmen]: A* for enemy "<<i<<std::endl;
 		while(!bl_reachGoal){
-			std::cout<<"loop begins, size of AstarOpenSet: "<<AstarOpenSet.size()<<std::endl;
-			// neigbours of front() are already in openset, front() is then useless	
-
-			//AstarOpenSet.pop_front();
-			
+			std::cout<<"[AstarAlgorithmen]: A* for enemy "<<i<<" in Loop"<<std::endl;
+				
 			// sort the openset 
 			sortOpenSet();
-			Debug2(AstarOpenSet);
-			
-			std::cout<<"After sortOpenSet"<<std::endl;
-			bl_reachGoal = findPath(AstarOpenSet[AstarOpenSet.size()-1], head, enemies[i].goal);
-			std::cout<<"bl_reachGoal = "<<bl_reachGoal<<std::endl;
+			std::cout<<"[AstarAlgorithmen]: A* for enemy "<<i<<" after Sort"<<std::endl;
+
+			bl_reachGoal = findPath(AstarOpenSet[AstarOpenSet.size()-1], head, enemies[i].goal);			
+			std::cout<<"[AstarAlgorithmen]: A* for enemy "<<i<<" update OpenSet"<<std::endl;
 		}
 			
-		std::cout<<"find path begins"<<std::endl;
+		std::cout<<"[AstarAlgorithmen]: A* for enemy "<<i<<" update Path"<<std::endl;
 		// find the path from goal back to start
 		do
 		{
@@ -162,19 +157,16 @@ void Astar::AstarAlgorithmen(std::vector<Snake> &enemies){
 		// after path decision finished, updateEnemiesDirection();
 		
 		// update enemies location
-		// enemies[i].update();
-		std::cout<<"Debug begins"<<std::endl;
-		Debug();
-		
+		// enemies[i].update();		
 	}
-	
-
+	std::cout<<"[AstarAlgorithmen]: end"<<std::endl;
 }
 
 bool Astar::findPath(Node node, Node &start, SDL_Point goal){
+	std::cout<<"[AstarAlgorithmen]-[findPath]: find the neigbour for node"<<std::endl;
 	int dirt[5] = {0,1,0,-1,0};
 	AstarOpenSet.pop_back();
-	std::cout<<"findPath begins"<<std::endl;
+	std::cout<<"[AstarAlgorithmen]-[findPath]: show openSet"<<std::endl;
 	Debug2(AstarOpenSet);
 	
 	for(int i=0;i<4;++i){
@@ -194,9 +186,7 @@ bool Astar::findPath(Node node, Node &start, SDL_Point goal){
 			}
 		}
 	}
-	std::cout<<"loop ends"<<std::endl;
-	Debug2(AstarOpenSet);	
-	std::cout<<"findPath ends"<<std::endl;
+	std::cout<<"[AstarAlgorithmen]-[findPath]: end"<<std::endl;
 	return false;
 }
 
