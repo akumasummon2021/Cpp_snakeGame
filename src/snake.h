@@ -35,7 +35,9 @@ class Snake {
   
   // nur Enemies use this variables
   void upDateDiretion(std::vector<SDL_Point> &foods);
-  SDL_Point goal;  
+  SDL_Point goal;    
+  int old_x = static_cast<int>(head_x);
+  int old_y = static_cast<int>(head_y);  
 
  private:
   void UpdateHead();
@@ -46,8 +48,6 @@ class Snake {
   int grid_height;
   
   // nur Enemies use this variables
-  int old_x = static_cast<int>(head_x);
-  int old_y = static_cast<int>(head_y);
   // in A* used
   std::vector<SDL_Point> path;  
 };

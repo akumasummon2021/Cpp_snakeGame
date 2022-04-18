@@ -3,8 +3,12 @@
 
 #include <memory>
 #include <vector>
+#include <deque>
 #include "stone.h"
+#include "SDL.h"
 #include "snake.h"
+#include <algorithm>
+#include <mutex>
 
 class Node {
 	public: 
@@ -14,23 +18,44 @@ class Node {
 		
 		int getX();
 		int getY();
+		
+		float gValue = 0;
+		float hValue = 0;
+		float calcDistance(Node &node);
+		float calcDistance(int targetX, int targetY);
+		float calcDistance(SDL_Point &point);		
+		bool operator==(Node &a) const;
+		bool operator>(Node &a) const;
+		bool operator<(Node &a) const;
 	private:
-		std::shared_ptr<Node> father;		
+		std::shared_ptr<Node> father;	
 		int x;
 		int y;
 };
 
 class Astar {
 	public: 
+		//enum class MapSymbol { msPath = -1, msRoad, msStone, msEnemies};
 		Astar(int grid_width, int grid_height);
 		void placeStoneOnMap(std::vector<Stone> const &stones);
-		void setEnemyDirektion(std::vector<Snake> &snake);
+		void placeEnemiesOnMap(std::vector<Snake> &snakes);
+		// to change all enemies direction
+		void AstarAlgorithmen(std::vector<Snake> &enemies);
+		void updateEnemiesDirection(std::vector<Snake> &snakes);
+		bool findPath(Node node, Node &start, SDL_Point goal);
+		void sortOpenSet();	
+		void Debug();
+		void Debug2(std::vector<Node> &node);
+		 
 	private:
 		std::vector<std::vector<int>> GameMap;
+		std::vector<std::vector<int>> AstartTemp;
 		std::vector<std::vector<int>> GameMap_init;
 		int grid_width;
 		int grid_height;
-
+		std::vector<Node> AstarOpenSet;
+		std::vector<Node> path;
+		std::mutex mt;
 };
 
 #endif

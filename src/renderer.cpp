@@ -66,7 +66,7 @@ void Renderer::Render(Snake const snake, std::vector<SDL_Point> foods, std::vect
   // Render snake's body
   SnakeRender(snake, block, false);
 
-  for(auto s : enemy){
+  for(auto const &s : enemy){
 	  SnakeRender(s, block, true);
   }
 

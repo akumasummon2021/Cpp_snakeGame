@@ -85,12 +85,19 @@ void Game::Update() {
   std::cout<<"snake 1 goal, x: "<<enemySnakes[0].goal.x<<std::endl;
   std::cout<<"snake 1 goal, y: "<<enemySnakes[0].goal.y<<std::endl;
   std::cout<<"snake 2 goal, x: "<<enemySnakes[1].goal.x<<std::endl;
-  std::cout<<"snake 2 goal, y: "<<enemySnakes[1].goal.y<<std::endl;  */
+  std::cout<<"snake 2 goal, y: "<<enemySnakes[1].goal.y<<std::endl;
   
+*/
+  
+  astar.updateEnemiesDirection(enemySnakes);
+  std::cout<<"After updateEnemiesDirection"<<std::endl;
+  astar.AstarAlgorithmen(enemySnakes);
+  std::cout<<"After AstarAlgorithmen"<<std::endl;
+  
+  std::cout<<"After pop_front"<<std::endl;
   for(int i=0; i< enemySnakes.size(); ++i){
-	  enemySnakes[i].upDateDiretion(foods);
 	  enemySnakes[i].Update();	  
-  }
+  }  
   
   snake.Update();
   
