@@ -79,19 +79,9 @@ bool Snake::SnakeCell(int x, int y) {
   return false;
 }
 
-// find the direction for the enemies
+// find the direction for the enemies, already move to astar.cpp
+/*
 void Snake::upDateDiretion(std::vector<SDL_Point> &foods){
-	/*float distance_squart = FLT_MAX;
-	int index;
-	
-	for(int i=0;i<foods.size();++i){
-		int abs = (head_x-foods[i].x)*(head_x-foods[i].x) + (head_y-foods[i].y)*(head_y-foods[i].y);
-		if(distance_squart > abs){
-			index = i;
-			distance_squart = abs;
-		}		
-	}*/
-	
 	int hx = static_cast<int>(head_x);
 	int hy = static_cast<int>(head_y);
 	
@@ -115,4 +105,4 @@ void Snake::upDateDiretion(std::vector<SDL_Point> &foods){
 		old_y = hy;
 		direction = Direction::kDown;
 	}
-}
+}*/

@@ -42,10 +42,11 @@ class Astar {
 		// to change all enemies direction
 		void AstarAlgorithmen(std::vector<Snake> &enemies);
 		void updateEnemiesDirection(std::vector<Snake> &snakes);
-		bool findPath(Node node, Node &start, SDL_Point goal);
+		bool findPath(Node &start, SDL_Point goal);
 		void sortOpenSet();	
 		void Debug();
 		void Debug2(std::vector<Node> &node);
+		void Debug3(std::vector<SDL_Point> path);
 		 
 	private:
 		std::vector<std::vector<int>> GameMap;
@@ -54,6 +55,7 @@ class Astar {
 		int grid_width;
 		int grid_height;
 		std::vector<Node> AstarOpenSet;
+		std::vector<Node> AstarCloseSet;
 		std::vector<Node> path;
 		std::mutex mt;
 };

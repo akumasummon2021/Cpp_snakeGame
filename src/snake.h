@@ -38,6 +38,10 @@ class Snake {
   SDL_Point goal;    
   int old_x = static_cast<int>(head_x);
   int old_y = static_cast<int>(head_y);  
+  
+  // nur Enemies use this variables
+  // in A* used
+  std::vector<SDL_Point> path;  
 
  private:
   void UpdateHead();
@@ -46,10 +50,7 @@ class Snake {
   bool growing{false};
   int grid_width;
   int grid_height;
-  
-  // nur Enemies use this variables
-  // in A* used
-  std::vector<SDL_Point> path;  
+
 };
 
 #endif

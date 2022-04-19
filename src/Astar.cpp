@@ -67,6 +67,8 @@ void Astar::placeStoneOnMap(std::vector<Stone> const &stones){
 
 }
 
+// updateEnemiesDirection without A*
+/*
 void Astar::updateEnemiesDirection(std::vector<Snake> &enemies){
 	for(int i=0;i<enemies.size();++i){
 		int hx = static_cast<int>(enemies[i].head_x);
@@ -93,6 +95,41 @@ void Astar::updateEnemiesDirection(std::vector<Snake> &enemies){
 			enemies[i].direction = Snake::Direction::kDown;
 		}		
 	}
+}*/
+
+// updateEnemiesDirection with A*
+void Astar::updateEnemiesDirection(std::vector<Snake> &enemies){
+	for(int i=0;i<enemies.size();++i){
+		int hx = static_cast<int>(enemies[i].head_x);
+		int hy = static_cast<int>(enemies[i].head_y);
+		/* // for debug
+		if(hx-enemies[i].goal.x > 0){
+			enemies[i].direction = Snake::Direction::kLeft;
+		}
+		else if(hy-enemies[i].goal.y > 0){	
+			enemies[i].direction = Snake::Direction::kUp;
+		}
+		else if(hx-enemies[i].goal.x < 0){;
+			enemies[i].direction = Snake::Direction::kRight;
+		}
+		else if(hy-enemies[i].goal.y < 0){
+			enemies[i].direction = Snake::Direction::kDown;
+		}*/
+		std::cout<<"head(x,y): ("<<hx<<", "<<hy<<")"<<std::endl;
+		std::cout<<"enemies(x,y): ("<<enemies[i].path.back().x<<", "<<enemies[i].path.back().y<<")"<<std::endl;
+		if(hx-enemies[i].path.back().x > 0){
+			enemies[i].direction = Snake::Direction::kLeft;
+		}
+		else if(hy-enemies[i].path.back().y > 0){	
+			enemies[i].direction = Snake::Direction::kUp;
+		}
+		else if(hx-enemies[i].path.back().x < 0){;
+			enemies[i].direction = Snake::Direction::kRight;
+		}
+		else if(hy-enemies[i].path.back().y < 0){
+			enemies[i].direction = Snake::Direction::kDown;
+		}
+	}
 }
 
 void Astar::placeEnemiesOnMap(std::vector<Snake> &enemies){
@@ -108,85 +145,77 @@ void Astar::placeEnemiesOnMap(std::vector<Snake> &enemies){
 	}
 }
 
+
+//only one enemy:
 void Astar::AstarAlgorithmen(std::vector<Snake> &enemies){
 	std::cout<<"[AstarAlgorithmen]: begin"<<std::endl;
-	// reset Map
-	GameMap = GameMap_init;	
-	placeEnemiesOnMap(enemies);	
-	
-	// find the path for all enemies
 	for(int i=0;i<enemies.size();++i){
-		std::cout<<"[AstarAlgorithmen]: Loop for enemy "<<i<<" in calc"<<std::endl;
-		// reset openset/Map/Enemies
+		// reset Map
 		if(!AstarOpenSet.empty()) {AstarOpenSet.clear();}
+		if(!AstarCloseSet.empty()) {AstarCloseSet.clear();}
+		if(!path.empty()) {path.clear();}
 		GameMap = GameMap_init;	
 		placeEnemiesOnMap(enemies);	
-		
+
 		// Astar:
-		// at first add head into openset
+		// at first add head-Node into openset
 		Node head(static_cast<int>(enemies[i].head_x), static_cast<int>(enemies[i].head_y), nullptr);
 		head.gValue = head.calcDistance(enemies[i].goal);		
 		AstarOpenSet.push_back(head);
-		
-		std::cout<<"[AstarAlgorithmen]: Head of enemy "<<i<<" (x,y): ("<<head.getX()<<", "<<head.getY()<<")"<<std::endl;
-		std::cout<<"[AstarAlgorithmen]: Goal of enemy "<<i<<" (x,y): ("<<enemies[i].goal.x<<", "<<enemies[i].goal.y<<std::endl;		
-		// find neigbours untile find the goal
-		
-		bool bl_reachGoal = findPath(AstarOpenSet.front(), head, enemies[i].goal);
-		
-		std::cout<<"[AstarAlgorithmen]: A* for enemy "<<i<<std::endl;
-		while(!bl_reachGoal){
-			std::cout<<"[AstarAlgorithmen]: A* for enemy "<<i<<" in Loop"<<std::endl;
 				
-			// sort the openset 
+		// find neigbours untile find the goal
+		std::cout<<"Head(x,y): ("<<head.getX()<<", "<<head.getY()<<")"<<std::endl;
+		std::cout<<"Goal(x,y): ("<<enemies[i].goal.x<<", "<<enemies[i].goal.y<<")"<<std::endl;
+		bool bl_reachGoal = findPath(head, enemies[i].goal);
+		// std::cout<<"to find the path"<<std::endl;	
+		while(!bl_reachGoal){
 			sortOpenSet();
-			std::cout<<"[AstarAlgorithmen]: A* for enemy "<<i<<" after Sort"<<std::endl;
-
-			bl_reachGoal = findPath(AstarOpenSet[AstarOpenSet.size()-1], head, enemies[i].goal);			
-			std::cout<<"[AstarAlgorithmen]: A* for enemy "<<i<<" update OpenSet"<<std::endl;
+			bl_reachGoal = findPath(head, enemies[i].goal);
 		}
-			
-		std::cout<<"[AstarAlgorithmen]: A* for enemy "<<i<<" update Path"<<std::endl;
-		// find the path from goal back to start
-		do
-		{
-			Node tmp = path.back();
-			path.emplace_back(*(tmp.getFather().get()));
-		}while((path.back().getX()==head.getX())&&path.back().getY()==head.getY());
 		
-		// after path decision finished, updateEnemiesDirection();
+		while(path.back().getFather()!=nullptr){
+			Node node =  path.back();
+			path.push_back(*(node.getFather()));
+		}	
 		
-		// update enemies location
-		// enemies[i].update();		
+		if((enemies[i].path.size()==0) || (enemies[i].path.size() != path.size()) || (enemies[i].path[path.size()-1].x != path[path.size()-2].getX()) && (enemies[i].path[path.size()-1].y != path[path.size()-2].getY())){
+			enemies[i].path.clear();
+			for(int j=0;j<path.size()-1;++j){			
+				enemies[i].path.emplace_back(SDL_Point {path[j].getX(), path[j].getY()});
+			}
+		}		
 	}
-	std::cout<<"[AstarAlgorithmen]: end"<<std::endl;
+
 }
 
-bool Astar::findPath(Node node, Node &start, SDL_Point goal){
-	std::cout<<"[AstarAlgorithmen]-[findPath]: find the neigbour for node"<<std::endl;
-	int dirt[5] = {0,1,0,-1,0};
+// use a* to find the path
+bool Astar::findPath(Node &start, SDL_Point goal){
+	// closeSet push the last element of the openset and then to find the neigbours of the last element
+	AstarCloseSet.emplace_back(std::move(AstarOpenSet.back()));
 	AstarOpenSet.pop_back();
-	std::cout<<"[AstarAlgorithmen]-[findPath]: show openSet"<<std::endl;
-	Debug2(AstarOpenSet);
+	// use bfs to find the neigbours
+	int dirt[5] = {0,1,0,-1,0};
+	
+	int tmpX = AstarCloseSet.back().getX();
+	int tmpY = AstarCloseSet.back().getY();
 	
 	for(int i=0;i<4;++i){
-		if((node.getY()+dirt[i]<grid_height)&&(node.getY()+dirt[i]>=0)&&(node.getX()+dirt[i+1]<grid_width)&&(node.getY()+dirt[i+1]>=0)){
-			if(GameMap[node.getY()+dirt[i]][node.getX()+dirt[i+1]] == 0){
-				GameMap[node.getY()+dirt[i]][node.getX()+dirt[i+1]] = -1;
-				std::shared_ptr<Node> nodePtr(&node);
-				Node temp(node.getX()+dirt[i+1], node.getY()+dirt[i], nodePtr);
+		if((tmpY+dirt[i]<grid_height)&&(tmpY+dirt[i]>=0)&&(tmpX+dirt[i+1]<grid_width)&&(tmpX+dirt[i+1]>=0)){
+			if(GameMap[tmpY+dirt[i]][tmpX+dirt[i+1]] == 0){
+				GameMap[tmpY+dirt[i]][tmpX+dirt[i+1]] = -1;
+				Node temp(tmpX+dirt[i+1], tmpY+dirt[i], std::make_shared<Node>(AstarCloseSet.back()));
 				if ((temp.getX() == goal.x) && (temp.getY() == goal.y)){
-					path.push_back(temp);
+					path.emplace_back(std::move(temp));
 					return true;
 				}
 				temp.gValue = temp.calcDistance(goal);
 				temp.hValue = temp.calcDistance(start);
-				AstarOpenSet.push_back(temp);
+				AstarOpenSet.emplace_back(std::move(temp));
 							
 			}
 		}
 	}
-	std::cout<<"[AstarAlgorithmen]-[findPath]: end"<<std::endl;
+	//std::cout<<"[AstarAlgorithmen]-[findPath]: end"<<std::endl;
 	return false;
 }
 
@@ -208,5 +237,11 @@ void Astar::Debug(){
 void Astar::Debug2(std::vector<Node> &node){
 	for(int i=0;i<node.size();++i){
 		std::cout<<"Element "<<i<<" (x,y): ("<<node[i].getX()<<", "<<node[i].getY()<<")"<<std::endl;
+	}
+}
+
+void Astar::Debug3(std::vector<SDL_Point> path){
+	for(int i=0;i<path.size();++i){
+		std::cout<<"Element "<<i<<" (x,y): ("<<path[i].x<<", "<<path[i].y<<")"<<std::endl;
 	}
 }

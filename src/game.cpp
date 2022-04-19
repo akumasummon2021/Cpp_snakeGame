@@ -81,22 +81,17 @@ void Game::PlaceFood(int nums) {
 void Game::Update() {
   if (!snake.alive) return;
   
-  upDateGoal(enemySnakes, foods);/*
-  std::cout<<"snake 1 goal, x: "<<enemySnakes[0].goal.x<<std::endl;
-  std::cout<<"snake 1 goal, y: "<<enemySnakes[0].goal.y<<std::endl;
-  std::cout<<"snake 2 goal, x: "<<enemySnakes[1].goal.x<<std::endl;
-  std::cout<<"snake 2 goal, y: "<<enemySnakes[1].goal.y<<std::endl;
+  upDateGoal(enemySnakes, foods);
   
-*/
-  
-  astar.updateEnemiesDirection(enemySnakes);
-  std::cout<<"After updateEnemiesDirection"<<std::endl;
   astar.AstarAlgorithmen(enemySnakes);
-  std::cout<<"After AstarAlgorithmen"<<std::endl;
+  std::cout<<"after algorithm enemy 0: path size: "<<enemySnakes[0].path.size()<<std::endl;
+  astar.updateEnemiesDirection(enemySnakes);
+  std::cout<<"befor algorithm enemy 0: path size: "<<enemySnakes[0].path.size()<<std::endl;  
   
   std::cout<<"After pop_front"<<std::endl;
   for(int i=0; i< enemySnakes.size(); ++i){
-	  enemySnakes[i].Update();	  
+	enemySnakes[i].Update();
+	if((static_cast<int>(enemySnakes[i].head_x) == enemySnakes[i].path.back().x) && (static_cast<int>(enemySnakes[i].head_y) == enemySnakes[i].path.back().y)) enemySnakes[i].path.pop_back();
   }  
   
   snake.Update();
@@ -151,10 +146,10 @@ void Game::PlaceStone(int level){
 			nums = 4;
 			break;		
 		case 2:
-			nums = 8;
+			nums = 12;
 			break;		
 		case 3:
-			nums = 12;
+			nums = 25;
 			break;
 		default:
 			nums = 0;
@@ -216,17 +211,19 @@ void Game::upDateGoal(std::vector<Snake> &enemy, std::vector<SDL_Point> &foods){
 	int index;
 	int flag = 0;
 	
+	// to find out the nearste food
 	for(int j=0;j<enemy.size();++j){
 		distance_squart = FLT_MAX;
 		index = 0;
 		for(int i=0;i<foods.size();++i){
+			// the goal of the enemies should be different
 			for(int k=0;k<j;++k){
 				if ((enemy[k].goal.x == foods[i].x) && (enemy[k].goal.y == foods[i].y)){
 					flag = 1;
 					break;
 				}
 			}
-			
+			// if the food is already the goal of a enemy, then find the other food
 			if (flag == 1) {
 				flag = 0;
 				break;
