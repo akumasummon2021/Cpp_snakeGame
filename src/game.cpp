@@ -31,6 +31,15 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   Uint32 frame_duration;
   int frame_count = 0;
   bool running = true;
+  SDL_Event mainEvent;
+
+  renderer.Render(snake, foods, _stones, enemySnakes);
+  std::cout<<std::endl;
+  std::cout<<"PLEASE PRESS ENTER TO START THE GAME"<<std::endl;
+  while(SDL_WaitEvent(&mainEvent)){
+	  if((mainEvent.type == SDL_KEYDOWN) && (mainEvent.key.keysym.sym == SDLK_RETURN || mainEvent.key.keysym.sym == SDLK_s)) break;
+  }
+  
 
   while (running) {
     frame_start = SDL_GetTicks();

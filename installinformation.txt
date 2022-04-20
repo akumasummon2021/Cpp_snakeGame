@@ -1,0 +1,40 @@
+https://knowledge.udacity.com/questions/827030
+
+have met mary problems, last 3 days, and finally solve all the problems, if someone want to build the final in your local machine in the same environment, maybe this article can help you:
+
+zip download: you should download the file: SDL2-devel-2.0.20-VC.zip in the sdl homepage and unpack it somewhere
+in SDL2-Folder: you should add a File called SDL2Config.cmake, contents:
+set(SDL2_INCLUDE_DIRS "${CMAKE_CURRENT_LIST_DIR}/include")
+# Support both 32 and 64 bit builds
+if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
+  set(SDL2_LIBRARIES "${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2main.lib;${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2.lib")
+else ()
+  set(SDL2_LIBRARIES "${CMAKE_CURRENT_LIST_DIR}/lib/x86/SDL2main.lib;${CMAKE_CURRENT_LIST_DIR}/lib/x86/SDL2.lib")
+endif ()
+string(STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES)
+3. in cmakelist.txt in snakegame-Folder: you should add this in txt before "find_package":
+
+# adjust to your SDL2-Folder
+set(SDL2_DIR "C:/Works/Git/CppSnake/SDL2") 
+# adjust to your SDL2-Folder
+include_directories("C:/Works/Git/CppSnake/SDL2/include")
+4. in building may be you will get some error information from:
+
+string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)
+if so, just comment it out.
+
+5. if you get this information from building:
+
+C:/Works/Git/CppSnake/SDL2/lib/x64/SDL2main.lib(x64/Release/SDL_windows_main.obj):(.text$mn+0x84): undefined reference to `SDL_wcslen'
+C:/Works/Git/CppSnake/SDL2/lib/x64/SDL2main.lib(x64/Release/SDL_windows_main.obj):(.text$mn+0xa2): undefined reference to `SDL_iconv_string'
+C:/Works/Git/CppSnake/SDL2/lib/x64/SDL2main.lib(x64/Release/SDL_windows_main.obj):(.text$mn+0xb6): undefined reference to `SDL_strlen'
+C:/Works/Git/CppSnake/SDL2/lib/x64/SDL2main.lib(x64/Release/SDL_windows_main.obj):(.text$mn+0xfb): undefined reference to `SDL_free'
+C:/Works/Git/CppSnake/SDL2/lib/x64/SDL2main.lib(x64/Release/SDL_windows_main.obj):(.text$mn+0x122): undefined reference to `SDL_SetMainReady'
+C:/Works/Git/CppSnake/SDL2/lib/x64/SDL2main.lib(x64/Release/SDL_windows_main.obj):(.text$mn+0x12e): undefined reference to `SDL_main'
+C:/Works/Git/CppSnake/SDL2/lib/x64/SDL2main.lib(x64/Release/SDL_windows_main.obj):(.text$mn+0x18e): undefined reference to `SDL_ShowSimpleMessageBox'
+please change your main.cpp like that:
+
+int main(int argv, char** args)
+with these steps you can build your project successfully, but, you still can't run the Snakegame.exe. Because the .exe need the .dll file.
+
+6. the SDL2.dll is in SDL2 Folder. You can copy it to the build Folder of your project, now you can run the executable successfully ^^
