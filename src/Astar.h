@@ -3,12 +3,10 @@
 
 #include <memory>
 #include <vector>
-#include <deque>
 #include "stone.h"
 #include "SDL.h"
 #include "snake.h"
 #include <algorithm>
-#include <mutex>
 
 class Node {
 	public: 
@@ -47,7 +45,7 @@ class Astar {
 		void Debug();
 		void Debug2(std::vector<Node> &node);
 		void Debug3(std::vector<SDL_Point> path);
-		 
+		void findNoPathToDo(Snake &enemy, Node &headNode);	 
 	private:
 		std::vector<std::vector<int>> GameMap;
 		std::vector<std::vector<int>> AstartTemp;
@@ -57,7 +55,6 @@ class Astar {
 		std::vector<Node> AstarOpenSet;
 		std::vector<Node> AstarCloseSet;
 		std::vector<Node> path;
-		std::mutex mt;
 };
 
 #endif

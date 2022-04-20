@@ -3,12 +3,14 @@
 #include "SDL.h"
 #include <float.h>
 
-Game::Game(std::size_t grid_width, std::size_t grid_height)
+Game::Game(std::size_t grid_width, std::size_t grid_height, int difficulty, int numsOfEnemy)
     : snake(grid_width, grid_height),
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)),
-	  astar(grid_width, grid_height) {
+	  astar(grid_width, grid_height),
+	  _difficulty(difficulty),
+	  numsOfEnemy(numsOfEnemy) {
 	  
 	for(int i=0;i<numsOfEnemy;++i) {
 		Snake tmp(grid_width, grid_height, i);
@@ -62,18 +64,25 @@ void Game::Run(Controller const &controller, Renderer &renderer,
 }
 
 void Game::PlaceFood(int nums) {
-  int x, y;
+  int x, y, flag;
   
   while (foods.size()<nums) {	
+    flag = 0;
     x = random_w(engine);
     y = random_h(engine);
-    // Check that the location is not occupied by a snake item before placing
+	
+    // Check that the location is not occupied by a snake/enemies item before placing
     // food.
-    if (!snake.SnakeCell(x, y) && !stonesHit(x, y)) {
-		SDL_Point food;
-		food.x = x;
-		food.y = y;
-		foods.push_back(food);
+	for(int i=0;i<enemySnakes.size();++i){
+		if(enemySnakes[i].SnakeCell(x,y)) {
+			flag = 1;
+			break;
+		}
+	}
+	
+    if ((flag == 0) && !snake.SnakeCell(x, y) && !stonesHit(x, y)) {		
+		Food food(x, y, ((x+y)%8==0)?Food::FoodType::FTcutEnemies : Food::FoodType::FTnormal);
+		foods.emplace_back(std::move(food));
     }
   }
 }
@@ -83,30 +92,54 @@ void Game::Update() {
   
   upDateGoal(enemySnakes, foods);
   
+  // calculate the path of the snake
   astar.AstarAlgorithmen(enemySnakes);
-  std::cout<<"after algorithm enemy 0: path size: "<<enemySnakes[0].path.size()<<std::endl;
-  astar.updateEnemiesDirection(enemySnakes);
-  std::cout<<"befor algorithm enemy 0: path size: "<<enemySnakes[0].path.size()<<std::endl;  
+  // update the enemies direction
+  astar.updateEnemiesDirection(enemySnakes); 
   
-  std::cout<<"After pop_front"<<std::endl;
+  // update position of the enemies
   for(int i=0; i< enemySnakes.size(); ++i){
 	enemySnakes[i].Update();
+	// update the path of the enemies, if they reach the next path-node
 	if((static_cast<int>(enemySnakes[i].head_x) == enemySnakes[i].path.back().x) && (static_cast<int>(enemySnakes[i].head_y) == enemySnakes[i].path.back().y)) enemySnakes[i].path.pop_back();
-  }  
+  }
   
+  // update player snake
   snake.Update();
   
-  // eat food check for enemy
+  int new_x;
+  int new_y;  
+  
   for(int i=0;i< enemySnakes.size();++i){
-    if (eatFood(enemySnakes[i])) {
+	// eat food check for enemy
+    if(eatFood(enemySnakes[i]) != Food::FoodType::FTnoFood) {
       PlaceFood(numsOfFoods);
       // Grow snake and increase speed.
       enemySnakes[i].GrowBody();
-    } 	
+    }
+	
+	new_x = static_cast<int>(enemySnakes[i].head_x);
+	new_y = static_cast<int>(enemySnakes[i].head_y);
+	
+	// check, if enemies eat player
+	if((static_cast<int>(snake.head_x) == new_x) && (static_cast<int>(snake.head_y) == new_y)){
+		snake.alive = false;
+		std::cout<<"be killed!!"<<std::endl;
+	}
+	else{
+		for(auto it = snake.body.begin();it!=snake.body.end();){
+			if(((*it).x == new_x) && ((*it).y == new_y)){
+				it = snake.body.erase(it, snake.body.end());
+				score = score>5?(score-5):0;
+				break;
+			}
+			++it;
+		}
+	}
   }
-  
-  int new_x = static_cast<int>(snake.head_x);
-  int new_y = static_cast<int>(snake.head_y);
+
+  new_x = static_cast<int>(snake.head_x);
+  new_y = static_cast<int>(snake.head_y);  
   
   // Check if the snake hit the stone, if yes, then no need to check food position
   if(stonesHit(new_x, new_y)) {
@@ -114,10 +147,20 @@ void Game::Update() {
 	  std::cout<<"hit a stone!"<<std::endl;
 	  return;
   }
-
-  // Check if there's food over here
-  if (eatFood(snake)) {
-    score++;
+  Food::FoodType ft;
+  ft = eatFood(snake);
+  // Check if food is eaten by player
+  if (ft != Food::FoodType::FTnoFood) {
+	if(ft == Food::FoodType::FTcutEnemies){
+		std::cout<<"eat CutEnemies"<<std::endl;
+		cutEnemies();
+		score += 5;
+	}
+	else{
+		std::cout<<"eat normal"<<std::endl;
+		score++;
+	}
+    
     PlaceFood(numsOfFoods);
     // Grow snake and increase speed.
     snake.GrowBody();
@@ -125,20 +168,26 @@ void Game::Update() {
   }  
 }
 
-bool Game::eatFood(Snake s){
+// check if snake s eats the food, if yes, pop the food from the array and return the type of the food
+Food::FoodType Game::eatFood(Snake &s){
   int new_x = static_cast<int>(s.head_x);
-  int new_y = static_cast<int>(s.head_y);	
-  
+  int new_y = static_cast<int>(s.head_y);
+  int flag = 0;  
+  Food::FoodType ft;
   //auto itr;
   for(auto itr = foods.begin(); itr != foods.end(); ++itr){
-	  if(((*itr).x == new_x) && ((*itr).y == new_y)){
+	  if(((*itr).getX() == new_x) && ((*itr).getY() == new_y)){		  
+		  ft = (*itr).getType();
+		  flag = 1;
 		  itr = foods.erase(itr);
-		  return true;
+		  break;
 	  }
   }
-  return false;
+  if (flag == 1) return ft;
+  else return Food::FoodType::FTnoFood;
 }
 
+// place the stone in the map, only in initialization of the game will be called
 void Game::PlaceStone(int level){	
 	int nums;
 	switch(level){
@@ -165,6 +214,7 @@ void Game::PlaceStone(int level){
 	}
 }
 
+// check if the player snake hit the stone
 bool Game::stonesHit(SDL_Point p){
 	for(auto pi : _stones){
 		if(pi.stoneHit(p)) return true;
@@ -172,6 +222,7 @@ bool Game::stonesHit(SDL_Point p){
 	return false;
 }
 
+// check if the player snake hit the stone
 bool Game::stonesHit(int x, int y){
 	for(auto pi : _stones){
 		if(pi.stoneHit(x, y)) return true;
@@ -188,7 +239,7 @@ bool Game::positionAvailable(SDL_Point p){
 	// for food:
 	if(foods.size() != 0){
 		for(auto food : foods){
-			if((p.x == food.x) && (p.y == food.y)) return false;
+			if((p.x == food.getX()) && (p.y == food.getY())) return false;
 		}
 	}		
 	
@@ -205,10 +256,11 @@ bool Game::positionAvailable(SDL_Point p){
 int Game::GetScore() const { return score; }
 int Game::GetSize() const { return snake.size; }
 
-void Game::upDateGoal(std::vector<Snake> &enemy, std::vector<SDL_Point> &foods){
+void Game::upDateGoal(std::vector<Snake> &enemy, std::vector<Food> &foods){
 	
 	float distance_squart;
 	int index;
+	int abs;
 	int flag = 0;
 	
 	// to find out the nearste food
@@ -218,7 +270,7 @@ void Game::upDateGoal(std::vector<Snake> &enemy, std::vector<SDL_Point> &foods){
 		for(int i=0;i<foods.size();++i){
 			// the goal of the enemies should be different
 			for(int k=0;k<j;++k){
-				if ((enemy[k].goal.x == foods[i].x) && (enemy[k].goal.y == foods[i].y)){
+				if ((enemy[k].goal.x == foods[i].getX()) && (enemy[k].goal.y == foods[i].getY())){
 					flag = 1;
 					break;
 				}
@@ -229,15 +281,28 @@ void Game::upDateGoal(std::vector<Snake> &enemy, std::vector<SDL_Point> &foods){
 				break;
 			}
 			
-			int abs = (enemy[j].head_x-foods[i].x)*(enemy[j].head_x-foods[i].x) + (enemy[j].head_y-foods[i].y)*(enemy[j].head_y-foods[i].y);
+			abs = (enemy[j].head_x-foods[i].getX())*(enemy[j].head_x-foods[i].getX()) + (enemy[j].head_y-foods[i].getY())*(enemy[j].head_y-foods[i].getY());
 			if(distance_squart > abs){
 				index = i;
 				distance_squart = abs;
 			}		
 		}
-		enemy[j].goal.x = foods[index].x;
-		enemy[j].goal.y = foods[index].y;
-	}
-	
+		enemy[j].goal.x = foods[index].getX();
+		enemy[j].goal.y = foods[index].getY();
 
+		// calc, if player is near the enemies: yes => set player as goal
+		abs = (enemy[j].head_x-snake.head_x)*(enemy[j].head_x-snake.head_x) + (enemy[j].head_y-snake.head_y)*(enemy[j].head_y-snake.head_y); 
+		if(abs < distance_squart){
+			enemy[j].goal.x = static_cast<int>(snake.head_x);
+			enemy[j].goal.y = static_cast<int>(snake.head_y);
+		}		
+	}
+}
+
+void Game::cutEnemies(){
+	for(int i=0;i<enemySnakes.size();++i){
+		int j;
+		j = enemySnakes[i].size/2;
+		enemySnakes[i].body.erase(enemySnakes[i].body.begin()+j, enemySnakes[i].body.end());
+	}
 }

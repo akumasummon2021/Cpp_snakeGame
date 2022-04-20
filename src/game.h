@@ -9,17 +9,18 @@
 #include "stone.h"
 #include "SDL.h"
 #include "Astar.h"
+#include "food.h"
 
 class Game {
  public:
-  Game(std::size_t grid_width, std::size_t grid_height);
+  Game(std::size_t grid_width, std::size_t grid_height, int difficulty, int numsOfEnemy);
   void Run(Controller const &controller, Renderer &renderer,
            std::size_t target_frame_duration);
   int GetScore() const;
   int GetSize() const;
   
   Astar astar;
-  void upDateGoal(std::vector<Snake> &enemySnakes, std::vector<SDL_Point> &foods);
+  void upDateGoal(std::vector<Snake> &enemySnakes, std::vector<Food> &foods);
 
  private:
   Snake snake;
@@ -31,7 +32,7 @@ class Game {
   // new snake vector
   std::vector<Snake> enemySnakes;
   // new foods vector
-  std::vector<SDL_Point> foods;
+  std::vector<Food> foods;
   int numsOfFoods{5};  
 
   std::random_device dev;
@@ -46,10 +47,11 @@ class Game {
   // new function
   void PlaceStone(int level);
   int numsOfEnemy{1};
-  bool eatFood(Snake s);
+  Food::FoodType eatFood(Snake &s);
   bool stonesHit(SDL_Point p);
   bool stonesHit(int x, int y);
   bool positionAvailable(SDL_Point p);
+  void cutEnemies();
 };
 
 

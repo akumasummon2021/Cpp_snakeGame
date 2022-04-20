@@ -115,8 +115,8 @@ void Astar::updateEnemiesDirection(std::vector<Snake> &enemies){
 		else if(hy-enemies[i].goal.y < 0){
 			enemies[i].direction = Snake::Direction::kDown;
 		}*/
-		std::cout<<"head(x,y): ("<<hx<<", "<<hy<<")"<<std::endl;
-		std::cout<<"enemies(x,y): ("<<enemies[i].path.back().x<<", "<<enemies[i].path.back().y<<")"<<std::endl;
+		// std::cout<<"head(x,y): ("<<hx<<", "<<hy<<")"<<std::endl;
+		// std::cout<<"enemies(x,y): ("<<enemies[i].path.back().x<<", "<<enemies[i].path.back().y<<")"<<std::endl;
 		if(hx-enemies[i].path.back().x > 0){
 			enemies[i].direction = Snake::Direction::kLeft;
 		}
@@ -148,12 +148,13 @@ void Astar::placeEnemiesOnMap(std::vector<Snake> &enemies){
 
 //only one enemy:
 void Astar::AstarAlgorithmen(std::vector<Snake> &enemies){
-	std::cout<<"[AstarAlgorithmen]: begin"<<std::endl;
+	//std::cout<<"[AstarAlgorithmen]: begin"<<std::endl;
 	for(int i=0;i<enemies.size();++i){
 		// reset Map
 		if(!AstarOpenSet.empty()) {AstarOpenSet.clear();}
-		if(!AstarCloseSet.empty()) {AstarCloseSet.clear();}
 		if(!path.empty()) {path.clear();}
+		// Close Set should be cleared at last, because the nodes in path and openset have a pointer, which point to the closeSet
+		if(!AstarCloseSet.empty()) {AstarCloseSet.clear();}
 		GameMap = GameMap_init;	
 		placeEnemiesOnMap(enemies);	
 
@@ -164,11 +165,20 @@ void Astar::AstarAlgorithmen(std::vector<Snake> &enemies){
 		AstarOpenSet.push_back(head);
 				
 		// find neigbours untile find the goal
-		std::cout<<"Head(x,y): ("<<head.getX()<<", "<<head.getY()<<")"<<std::endl;
-		std::cout<<"Goal(x,y): ("<<enemies[i].goal.x<<", "<<enemies[i].goal.y<<")"<<std::endl;
+		// std::cout<<"Head(x,y): ("<<head.getX()<<", "<<head.getY()<<")"<<std::endl;
+		// std::cout<<"Goal(x,y): ("<<enemies[i].goal.x<<", "<<enemies[i].goal.y<<")"<<std::endl;
 		bool bl_reachGoal = findPath(head, enemies[i].goal);
-		// std::cout<<"to find the path"<<std::endl;	
+		//std::cout<<"Find the path start!!"<<"Head: ("<< head.getX()<<", "<< head.getY()<<"), goal: ("<<enemies[i].goal.x<<", "<<enemies[i].goal.y<<")"<<std::endl;	
 		while(!bl_reachGoal){
+			//std::cout<<"size of OS: "<< AstarOpenSet.size()<<" size of CS: "<< AstarCloseSet.size()<<std::endl;
+			
+			if(AstarOpenSet.size() == 0) {
+				/*
+				std::cout<<"Head: ("<< head.getX()<<", "<< head.getY()<<"), goal: ("<<enemies[i].goal.x<<", "<<enemies[i].goal.y<<")"<<std::endl;
+				Debug();*/
+				findNoPathToDo(enemies[i], head);
+				break;
+			}
 			sortOpenSet();
 			bl_reachGoal = findPath(head, enemies[i].goal);
 		}
@@ -185,8 +195,30 @@ void Astar::AstarAlgorithmen(std::vector<Snake> &enemies){
 			}
 		}		
 	}
-
 }
+
+void Astar::findNoPathToDo(Snake &enemy, Node &headNode){
+	// choice 1: go through edge => abandon
+	// reborn enemies
+	enemy.body.clear();
+	enemy.size = 1;
+	int diffX = 0, diffY = 0;
+	if (enemy.direction == Snake::Direction::kUp){
+		diffY = -1;
+	}
+	else if(enemy.direction == Snake::Direction::kDown){
+		diffY = 1;
+	}
+	else if(enemy.direction == Snake::Direction::kLeft){
+		diffX = -1;
+	}
+	else if(enemy.direction == Snake::Direction::kRight){
+		diffX = 1;
+	}
+	SDL_Point p = {headNode.getX()+diffX, headNode.getY()+diffY};
+	enemy.path.emplace_back(std::move(p));
+}
+
 
 // use a* to find the path
 bool Astar::findPath(Node &start, SDL_Point goal){
@@ -202,7 +234,7 @@ bool Astar::findPath(Node &start, SDL_Point goal){
 	for(int i=0;i<4;++i){
 		if((tmpY+dirt[i]<grid_height)&&(tmpY+dirt[i]>=0)&&(tmpX+dirt[i+1]<grid_width)&&(tmpX+dirt[i+1]>=0)){
 			if(GameMap[tmpY+dirt[i]][tmpX+dirt[i+1]] == 0){
-				GameMap[tmpY+dirt[i]][tmpX+dirt[i+1]] = -1;
+				GameMap[tmpY+dirt[i]][tmpX+dirt[i+1]] = 8;
 				Node temp(tmpX+dirt[i+1], tmpY+dirt[i], std::make_shared<Node>(AstarCloseSet.back()));
 				if ((temp.getX() == goal.x) && (temp.getY() == goal.y)){
 					path.emplace_back(std::move(temp));
@@ -220,9 +252,11 @@ bool Astar::findPath(Node &start, SDL_Point goal){
 }
 
 void Astar::sortOpenSet(){
+	if(AstarOpenSet.size()>1){		
 	sort(AstarOpenSet.begin(), AstarOpenSet.end(), [](Node &a, Node &b)->bool{
         	return a > b;	
-        });
+        });		
+	}
 }
 
 void Astar::Debug(){

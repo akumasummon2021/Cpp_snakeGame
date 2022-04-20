@@ -41,7 +41,7 @@ class Snake {
   
   // nur Enemies use this variables
   // in A* used
-  std::vector<SDL_Point> path;  
+  std::vector<SDL_Point> path; 
 
  private:
   void UpdateHead();
