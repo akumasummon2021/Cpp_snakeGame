@@ -152,12 +152,12 @@ void Game::Update() {
   // Check if food is eaten by player
   if (ft != Food::FoodType::FTnoFood) {
 	if(ft == Food::FoodType::FTcutEnemies){
-		std::cout<<"eat CutEnemies"<<std::endl;
+		//std::cout<<"eat CutEnemies"<<std::endl;
 		cutEnemies();
 		score += 5;
 	}
 	else{
-		std::cout<<"eat normal"<<std::endl;
+		//std::cout<<"eat normal"<<std::endl;
 		score++;
 	}
     
