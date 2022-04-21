@@ -13,22 +13,26 @@ int main(int argv, char** args) {
   
   int difficulty = -1, numsOfEnemy = -1;
   
-  while((difficulty<0) || (difficulty>=4)){
+  std::cout<<"please enter quantity level of the obstacles(0-3): ";
+  std::cin>>difficulty;
+  while(std::cin.fail() || (difficulty<0) || (difficulty>=4)){
+	std::cin.clear(); 
+    std::cin.ignore(100, '\n'); 
+	std::cout<<"input not inside the range(0-3)!"<<std::endl;
 	std::cout<<"please enter quantity level of the obstacles(0-3): ";
 	std::cin>>difficulty;
-	if((difficulty<0) || (difficulty>=4)){
-		std::cout<<"input not inside the range(0-3)! use default value 1"<<std::endl;
-	}
   }
 
-  while((numsOfEnemy<0) || (numsOfEnemy>=3)){  
-	std::cout<<"please enter quantity level of the Enemies(0-2): ";
+  std::cout<<"please enter quantity of the Enemies(0-2): ";
+  std::cin>>numsOfEnemy;
+  while(std::cin.fail() || (numsOfEnemy<0) || (numsOfEnemy>=3)){
+	std::cin.clear(); 
+    std::cin.ignore(100, '\n'); 
+	std::cout<<"input not inside the range(0-2)!"<<std::endl;
+	std::cout<<"please enter quantity level of the obstacles(0-2): ";
 	std::cin>>numsOfEnemy;
-	if((numsOfEnemy<0) || (numsOfEnemy>=3)){
-		std::cout<<"input not inside the range(0-2)! use default value 1"<<std::endl;
-		numsOfEnemy = 1;
-	}	
   }
+
 
   Renderer renderer(kScreenWidth, kScreenHeight, kGridWidth, kGridHeight);
   Controller controller;
